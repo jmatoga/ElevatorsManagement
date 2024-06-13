@@ -34,6 +34,10 @@ public class User {
 
     private String password;
 
+    private Integer currentFloor;
+
+    private Integer destinationFloor;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime created;
@@ -44,8 +48,8 @@ public class User {
     @Column(name="role")
     private Set<ERole> roles = new HashSet<>();
 
-    //    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-//    public RefreshToken refreshToken;
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    public RefreshToken refreshToken;
 
     public User(String email, String password) {
         this.email = email;

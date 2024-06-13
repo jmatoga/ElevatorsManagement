@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         if (loginAttemptService.isBlocked(username)) {
             Integer blockedFor = loginAttemptService.isBlockedFor(username);
-            throw new LoginAttemptException("Login blocked for: " + blockedFor + "min.");
+            throw new LoginAttemptException(" Login blocked for: " + blockedFor + "min.");
         }
 
         User user = userRepository.findByEmail(username)
