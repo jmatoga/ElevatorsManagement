@@ -7,7 +7,8 @@ CREATE TABLE users
     created       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     password      VARCHAR(255) NOT NULL,
     current_floor int          NOT NULL,
-    destination_floor int
+    destination_floor int,
+    inside_elevator boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE user_role

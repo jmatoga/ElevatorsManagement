@@ -1,7 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
-export default function Navbar() {
+export default function Navbar({ onLogin }) {
+  let navigate = useNavigate();
+  const handleLogout = (e) => {
+    e.preventDefault();
+    const allCookies = Cookies.get();
+    for (let cookie in allCookies) {
+      Cookies.remove(cookie);
+    }
+    onLogin(false);
+    navigate("/");
+  };
+
   return (
     <div>
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -9,21 +21,13 @@ export default function Navbar() {
           <Link className="navbar-brand" to="/">
             Elevators Management
           </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          <Link className="btn btn-outline-light" to="/details">
-            Account
-          </Link>
+          <div className="ml-auto">
+            <form action="" onSubmit={handleLogout}>
+              <button type="submit" className="btn btn-outline-danger">
+                Log out
+              </button>
+            </form>
+          </div>
         </div>
       </nav>
     </div>

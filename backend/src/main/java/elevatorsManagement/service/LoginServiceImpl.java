@@ -89,14 +89,6 @@ public class LoginServiceImpl implements LoginService {
         return ResponseEntity.ok().headers(responseHeaders).body(jwtResponse);
     }
 
-//    public String getUserEmailFromAccessToken(String accessToken) {
-//        String[] chunks = accessToken.split("\\.");
-//        Base64.Decoder decoder = Base64.getUrlDecoder();
-//        String payload = new String(decoder.decode(chunks[1]));
-//        JsonObject converted = new Gson().fromJson(payload, JsonObject.class);
-//        return converted.get("sub").getAsString();
-//    }
-
     public ResponseEntity<JwtResponse> getJwtResponseFromUser(User user) {
         UserDetailsImpl userPrincipal = UserDetailsImpl.build(user);
         String accessToken = jwtUtils.generateJwtToken(userPrincipal);
@@ -109,13 +101,4 @@ public class LoginServiceImpl implements LoginService {
         HttpHeaders httpHeaders = createHeaders(jwtResponse);
         return ResponseEntity.ok().headers(httpHeaders).body(jwtResponse);
     }
-
-//    public ResponseEntity<MessageResponse> checkIfTokesExpired(String token) {
-//        PasswordReset passwordReset = getPasswordResetByToken(token);
-//
-//        if (passwordReset != null && passwordReset.getExpirationDate().isAfter(LocalDateTime.now()))
-//            return ResponseEntity.ok(new MessageResponse("Token is still valid"));
-//        else
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Token expired"));
-//    }
 }

@@ -7,14 +7,12 @@ export default function ElevatorsListPanel() {
   axios.defaults.headers.put["Content-Type"] = "application/json";
 
   const [elevators, setElevators] = useState([]);
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState({});
 
   const doSomethingEveryThreeSeconds = () => {
-    // Tutaj umieść kod, który ma być wykonywany co 3 sekundy
-    console.log("Wykonuję co 3 sekundy");
     fetchData();
     fetchUserData();
-    // Ustawienie nowego timeout po zakończeniu aktualnego
+
     setTimeout(doSomethingEveryThreeSeconds, 2000);
   };
 
@@ -22,11 +20,6 @@ export default function ElevatorsListPanel() {
     fetchData();
     fetchUserData();
     doSomethingEveryThreeSeconds();
-    // const interval = setInterval(() => {
-    //   fetchData();
-    //   fetchUserData();
-    //   console.log("Wykonuję co 3 sekundy");
-    // }, 3000);
   }, []);
 
   const fetchData = async () => {
@@ -43,12 +36,9 @@ export default function ElevatorsListPanel() {
         currentDirection: data.currentDirection,
         status: data.status,
         usersCount: data.usersCount,
+        usersInsideElevator: data.usersInsideElevator,
       }));
       setElevators(elevatorsData);
-      console.log(
-        "!" + elevatorsData[4].number + elevatorsData[4].destinationsFloor
-      );
-      // console.log(elevators);
     } catch (error) {
       console.error("Error loading data:", error);
     }
@@ -60,13 +50,19 @@ export default function ElevatorsListPanel() {
         `http://localhost:8090/api/current-user`,
         { withCredentials: true }
       );
+      if (
+        response.data.insideElevator !== user.insideElevator &&
+        response.data.insideElevator === false
+      ) {
+        setSelectedOptions({});
+      }
       setUser(response.data);
     } catch (error) {
       console.error("Error loading data:", error);
     }
   };
 
-  const handleUpRequest = useCallback((id) => {
+  const handleUpDownRequest = useCallback((id) => {
     axios
       .post(
         `http://localhost:8090/api/elevator/update/${id.toString()}`,
@@ -84,32 +80,6 @@ export default function ElevatorsListPanel() {
             elevator.id === id ? { ...elevator, ...response.data } : elevator
           )
         );
-        console.log(elevators);
-      })
-      .catch((error) => {
-        console.error("Error updating elevator:", error);
-      });
-  }, []);
-
-  const handleDownRequest = useCallback((id) => {
-    axios
-      .post(
-        `http://localhost:8090/api/elevator/update/${id.toString()}`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
-      .then((response) => {
-        setElevators((prevElevators) =>
-          prevElevators.map((elevator) =>
-            elevator.id === id ? { ...elevator, ...response.data } : elevator
-          )
-        );
-        console.log(elevators);
       })
       .catch((error) => {
         console.error("Error updating elevator:", error);
@@ -148,15 +118,23 @@ export default function ElevatorsListPanel() {
       ...selectedOptions,
       [elevatorId]: option,
     });
+    if (
+      elevators.find((elevator) => elevator.id === elevatorId).usersCount >= 3
+    ) {
+      alert(
+        "Elevator is full, choose other elevator or wait for the next one."
+      );
+      return;
+    }
     if (option !== user.currentFloor) {
       handleFloorRequest(elevatorId, option);
     }
   };
 
-  const handleButtonClick = (elevatorId) => {
+  const handleButtonClick = (elevatorId, direction) => {
     setClickedButtons({
       ...clickedButtons,
-      [elevatorId]: true,
+      [elevatorId]: direction,
     });
   };
 
@@ -171,7 +149,8 @@ export default function ElevatorsListPanel() {
             {user.name + " " + user.surname}
           </h3>
           <h4>
-            Your current floor: {user.currentFloor}
+            Your current floor: <b>{user.currentFloor}</b> <br />
+            Is inside elevator: <b>{user.insideElevator ? "Yes" : "No"}</b>
             <br />
             <br />
           </h4>
@@ -186,7 +165,7 @@ export default function ElevatorsListPanel() {
                   <th scope="col">Current elevator floor</th>
                   <th scope="col">Destination floors</th>
                   <th scope="col">Current direction</th>
-                  <th scope="col">People inside count</th>
+                  <th scope="col">People inside elevator</th>
                   <th scope="col">Status</th>
                   <th scope="col">Action</th>
                 </tr>
@@ -209,8 +188,10 @@ export default function ElevatorsListPanel() {
                       <i>{elevator.status}</i>
                     </td>
                     <td>
-                      {elevator.currentFloor === user.currentFloor &&
-                      clickedButtons[elevator.id] ? (
+                      {(clickedButtons[elevator.id] &&
+                        elevator.currentFloor === user.currentFloor) ||
+                      (Array.isArray(elevator.usersInsideElevator) &&
+                        elevator.usersInsideElevator.includes(user.id)) ? (
                         <ButtonGroup>
                           {[0, 1, 2, 3, 4, 5].map((option) => (
                             <Button
@@ -226,23 +207,19 @@ export default function ElevatorsListPanel() {
                             </Button>
                           ))}
                         </ButtonGroup>
-                      ) : (
+                      ) : !user.insideElevator ? (
                         <>
                           <form
                             className="submitUP"
                             onSubmit={(event) => {
                               event.preventDefault();
-                              handleUpRequest(elevator.id);
-                              handleButtonClick(elevator.id);
+                              handleUpDownRequest(elevator.id);
+                              handleButtonClick(elevator.id, "up");
                             }}
                           >
                             <button
                               type="submit"
-                              className={`btn mx-1 ${
-                                clickedButtons[elevator.id] === "up"
-                                  ? "btn-success"
-                                  : "btn-primary"
-                              }`}
+                              className={`btn mx-1 btn-primary`}
                             >
                               Up
                             </button>
@@ -251,35 +228,19 @@ export default function ElevatorsListPanel() {
                             className="submitDOWN"
                             onSubmit={(event) => {
                               event.preventDefault();
-                              handleDownRequest(elevator.id);
-                              handleButtonClick(elevator.id);
+                              handleUpDownRequest(elevator.id);
+                              handleButtonClick(elevator.id, "down");
                             }}
                           >
                             <button
                               type="submit"
-                              className={`btn mx-1 ${
-                                clickedButtons[elevator.id] === "down"
-                                  ? "btn-success"
-                                  : "btn-primary"
-                              }`}
+                              className={`btn mx-1 btn-primary`}
                             >
                               Down
                             </button>
                           </form>
                         </>
-                      )}
-                      {/* <Link
-                        className="btn btn-outline-primary mx-1"
-                        to={`/editCampaign/${elevator.id}`}
-                      >
-                        Edit
-                      </Link>
-                      <Link
-                        className="btn btn-danger mx-1"
-                        onClick={() => handleUpRequest(elevator.id)}
-                      >
-                        Delete
-                      </Link> */}
+                      ) : null}
                     </td>
                   </tr>
                 ))}

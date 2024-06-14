@@ -37,10 +37,10 @@ VALUES
     ('fc126a25-2048-11ef-b0c9-74563c18f0cb', 16, 0, 'NONE', 'IDLE');
 
 
-INSERT INTO users_in_elevators (elevator_id, user_id)
-VALUES
-    ('e943af36-2048-11ef-b0c9-74563c18f0cb', '07bf115f-2049-11ef-b0c9-74563c18f0cb'),
-    ('e943af36-2048-11ef-b0c9-74563c18f0cb', '74d7971b-2048-11ef-b0c9-74563c18f0cb'),
-    ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'ab5bd236-2048-11ef-b0c9-74563c18f0cb'),
-    ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'd39177c3-2048-11ef-b0c9-74563c18f0cb'),
-    ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'e8a05af4-2048-11ef-b0c9-74563c18f0cb');
+-- INSERT INTO users_in_elevators (elevator_id, user_id)
+-- VALUES
+--     ('e943af36-2048-11ef-b0c9-74563c18f0cb', '07bf115f-2049-11ef-b0c9-74563c18f0cb'),
+--     ('e943af36-2048-11ef-b0c9-74563c18f0cb', '74d7971b-2048-11ef-b0c9-74563c18f0cb'),
+--     ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'ab5bd236-2048-11ef-b0c9-74563c18f0cb'),
+--     ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'd39177c3-2048-11ef-b0c9-74563c18f0cb'),
+--     ('e943af36-2048-11ef-b0c9-74563c18f0cb', 'e8a05af4-2048-11ef-b0c9-74563c18f0cb');

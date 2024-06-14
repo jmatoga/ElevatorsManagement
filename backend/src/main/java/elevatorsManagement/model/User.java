@@ -38,6 +38,8 @@ public class User {
 
     private Integer destinationFloor;
 
+    private Boolean insideElevator;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime created;

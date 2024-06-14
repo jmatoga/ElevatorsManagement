@@ -2,12 +2,14 @@ package elevatorsManagement.mapper;
 
 import elevatorsManagement.dto.ElevatorDTO;
 import elevatorsManagement.model.Elevator;
+import elevatorsManagement.model.User;
 import elevatorsManagement.repository.ElevatorRepository;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class ElevatorMapper {
@@ -60,6 +62,11 @@ public abstract class ElevatorMapper {
             elevatorDTO.setStatus( elevator.getStatus().name() );
         }
         elevatorDTO.setUsersCount(getUsersCount(elevator));
+        if ( elevator.getUsersInElevator() != null ) {
+            elevatorDTO.setUsersInsideElevator( elevator.getUsersInElevator().stream()
+                    .map(User::getId)
+                    .collect(Collectors.toList()) );
+        }
 
         return elevatorDTO;
     }

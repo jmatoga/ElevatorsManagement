@@ -25,7 +25,7 @@ public class UserController {
     ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
-//
+
     @GetMapping("/current-user")
     @PreAuthorize("hasRole('ROLE_USER')" + "or hasRole('ROLE_MODERATOR')" + "or hasRole('ROLE_ADMIN')" )
     ResponseEntity<UserDTO> getCurrentUser() throws CurrentUserNotAuthenticatedException {

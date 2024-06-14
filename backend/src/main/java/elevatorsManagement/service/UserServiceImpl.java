@@ -1,6 +1,5 @@
 package elevatorsManagement.service;
 
-import elevatorsManagement.dto.UserDetailsDTO;
 import elevatorsManagement.exception.CurrentUserNotAuthenticatedException;
 import elevatorsManagement.exception.EmailAlreadyTakenException;
 import elevatorsManagement.model.User;
@@ -53,21 +52,5 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                        .orElseThrow(() -> new RuntimeException("User with ID: " + userId + " not found!"));
     }
-
-    @Override
-    public void updateUserDetails(UserDetailsDTO userDTO) throws CurrentUserNotAuthenticatedException {
-        User user = getCurrentUser();
-        if(userDTO.name() != null && !userDTO.name().isEmpty())
-            user.setName(userDTO.name());
-        if(userDTO.surname() != null && !userDTO.surname().isEmpty())
-            user.setSurname(userDTO.surname());
-        if(userDTO.email() != null && !userDTO.email().isEmpty())
-            user.setEmail(userDTO.email());
-        if(userDTO.password() != null && !userDTO.password().isEmpty())
-            user.setPassword(encoder.encode(userDTO.password()));
-        userRepository.save(user);
-    }
-
-
 
 }

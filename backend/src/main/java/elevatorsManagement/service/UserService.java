@@ -15,6 +15,4 @@ public interface UserService {
     void registerUser(User user);
 
     User getUserById(UUID id);
-
-    void updateUserDetails(UserDetailsDTO userDTO) throws CurrentUserNotAuthenticatedException;
 }

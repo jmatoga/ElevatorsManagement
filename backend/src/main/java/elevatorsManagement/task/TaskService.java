@@ -36,47 +36,64 @@ public class TaskService {
 
     public void elevatorStep(UUID id) {
         taskExecutor.execute(() -> {
-            System.out.println("2");
             try {
                 lock.lock();
                 try {
+                    Elevator elevator1 = elevatorService.getElevator(id);
 
-//                List<Integer> floorsBelow = new ArrayList<>();
-//                List<Integer> floorsAbove = new ArrayList<>();
-//                elevator.getDestinationsFloor().forEach(floor -> {
-//                    if (floor < elevator.getCurrentFloor()) {
-//                        floorsBelow.add(floor);
-//                    } else if (floor > elevator.getCurrentFloor()) {
-//                        floorsAbove.add(floor);
-//                    }
-//                });
-//
-//                floorsBelow.sort(Collections.reverseOrder());
-//                floorsAbove.sort(Integer::compareTo);
-//
-//                if(elevator.getCurrentDirection().equals(EDirection.UP)) {
-//                    List<Integer> floorsSorted = new ArrayList<>();
-//                    floorsSorted.addAll(floorsAbove);
-//                    floorsSorted.addAll(floorsBelow);
-//                    elevator.setDestinationsFloor(floorsSorted);
-//                } else {
-//                    List<Integer> floorsSorted = new ArrayList<>();
-//                    floorsSorted.addAll(floorsBelow);
-//                    floorsSorted.addAll(floorsAbove);
-//                    elevator.setDestinationsFloor(floorsSorted);
-//                }
-//                elevatorRepository.save(elevator);
+                    if(elevator1.getDestinationsFloor().size() >= 2) {
 
+                        // Ustawienie kolejnych pięter w odpowiedniej kolejności w zależności od tego które są bliżej
+                        List<Integer> floorsBelow = new ArrayList<>();
+                        List<Integer> floorsAbove = new ArrayList<>();
+                        elevator1.getDestinationsFloor().forEach(floor -> {
+                            if (floor < elevator1.getCurrentFloor()) {
+                                floorsBelow.add(floor);
+                            } else if (floor > elevator1.getCurrentFloor()) {
+                                floorsAbove.add(floor);
+                            }
+                        });
+
+                        floorsBelow.sort(Collections.reverseOrder());
+                        floorsAbove.sort(Integer::compareTo);
+
+                        List<Integer> floorsSorted = new ArrayList<>();
+
+                        if (elevator1.getCurrentDirection().equals(EDirection.UP)) {
+                            floorsSorted.addAll(floorsAbove);
+                            floorsSorted.addAll(floorsBelow);
+                        } else if (elevator1.getCurrentDirection().equals(EDirection.DOWN)) {
+                            floorsSorted.addAll(floorsBelow);
+                            floorsSorted.addAll(floorsAbove);
+                        }
+
+                        // Sortowanie na podstawie szacowanego czasu oczekiwania
+                        floorsSorted.sort((floor1, floor2) -> {
+                            int waitTime1 = calculateWaitTime(floor1, elevator1.getCurrentFloor());
+                            int waitTime2 = calculateWaitTime(floor2, elevator1.getCurrentFloor());
+                            return Integer.compare(waitTime1, waitTime2);
+                        });
+
+                        elevator1.setDestinationsFloor(floorsSorted);
+                        elevatorRepository.save(elevator1);
+                    }
 
                     Thread.sleep(5000); // Opóźnienie 5 sekund
                     Elevator elevator = elevatorService.getElevator(id);
                     Integer currentFloor = elevator.getCurrentFloor();
+
+                    if(elevator.getDestinationsFloor().isEmpty())
+                        elevator.setCurrentDirection(EDirection.NONE);
+                    else if (elevator.getDestinationsFloor().getFirst() > currentFloor)
+                        elevator.setCurrentDirection(EDirection.UP);
+                    else if(elevator.getDestinationsFloor().getFirst() < currentFloor)
+                        elevator.setCurrentDirection(EDirection.DOWN);
+
                     if (!elevator.getDestinationsFloor().isEmpty() && elevator.getCurrentDirection().equals(EDirection.UP))
                         elevator.setCurrentFloor(currentFloor + 1);
                     else if (!elevator.getDestinationsFloor().isEmpty() && elevator.getCurrentDirection().equals(EDirection.DOWN))
                         elevator.setCurrentFloor(currentFloor - 1);
                     else if (elevator.getCurrentDirection().equals(EDirection.NONE) && elevator.getUsersInElevator().isEmpty()) {
-                        // elevatorService.updateElevatorAfterMoving(id);
                         if (elevator.getCurrentFloor() == 0) {
                             elevator.setStatus(EStatus.IDLE);
                             elevator.setCurrentDirection(EDirection.NONE);
@@ -85,9 +102,6 @@ public class TaskService {
                         } else if (elevator.getDestinationsFloor().isEmpty()) {
                             elevator.setCurrentDirection(EDirection.DOWN);
                             elevator.setStatus(EStatus.BUSY);
-//                        List<Integer> destinationsFloor = elevator.getDestinationsFloor();
-//                        if(!destinationsFloor.contains(0))
-//                            destinationsFloor.add(0);
                             elevator.setDestinationsFloor(new ArrayList<Integer>(Collections.singleton(0)));
                             elevatorRepository.save(elevator);
                             elevatorStep(elevator.getId());
@@ -96,12 +110,11 @@ public class TaskService {
 
                     elevatorRepository.save(elevator);
 
-                    if (!elevator.getDestinationsFloor().isEmpty() && currentFloor.equals(elevator.getDestinationsFloor().getFirst()))
+                    if (!elevator.getDestinationsFloor().isEmpty() && elevator.getCurrentFloor().equals(elevator.getDestinationsFloor().getFirst()))
                         elevatorService.updateElevatorAfterMoving(id);
                     else
                         elevatorStep(id);
 
-                    System.out.println("2.1");
                 } finally {
                     lock.unlock();
             }
@@ -109,6 +122,10 @@ public class TaskService {
                 Thread.currentThread().interrupt();
             }
         });
+    }
+
+    private int calculateWaitTime(int floor, int currentFloor) {
+        return Math.abs(floor - currentFloor);
     }
 
 }

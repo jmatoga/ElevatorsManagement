@@ -17,4 +17,5 @@ public class ElevatorDTO {
     private EDirection currentDirection;
     private String status;
     private int usersCount;
+    private List<UUID> usersInsideElevator;
 }

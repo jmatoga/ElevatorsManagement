@@ -19,6 +19,7 @@ public abstract class UserMapper {
 
     @InheritInverseConfiguration(name = "mapToUser")
     @Named("mapToUserDTO")
+    @Mapping(target="insideElevator", source = "insideElevator")
     public abstract UserDTO mapToUserDTO(User user);
 
 }
