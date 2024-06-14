@@ -1,7 +1,7 @@
 INSERT INTO users (id, name, surname, email, created, password, current_floor)
 VALUES ('07bf115f-2049-11ef-b0c9-74563c18f0cb', 'Wiktor', 'Rogal', 'wrogal@example.com', '2024-06-01 20:59:11',
         '$2a$10$HQDbQLUZtEIdVIWAT2SvnuO7sqlmt1kNNDj0qgcMmaQLvm01K7HP6', 0),
-       ('74d7971b-2048-11ef-b0c9-74563c18f0cb', 'Jan', 'gfsaga', 'jsfa@example.com', '2024-06-01 20:55:05',
+       ('74d7971b-2048-11ef-b0c9-74563c18f0cb', 'Jan', 'Wiśniewski', 'jwisniewski@example.com', '2024-06-01 20:55:05',
         '$2a$10$iYpmIz84JdftSp.xSNg7QeKUCAw.0J6UJ7UCJPRKMbefhMIujpJau', 1),
        ('ab5bd236-2048-11ef-b0c9-74563c18f0cb', 'Anna', 'Wesołowska', 'awesolowska@example.com', '2024-06-01 20:56:36',
         '$2a$10$HQDbQLUZtEIdVIWAT2SvnuO7sqlmt1kNNDj0qgcMmaQLvm01K7HP6', 2),
